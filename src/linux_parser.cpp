@@ -67,22 +67,17 @@ vector<int> LinuxParser::Pids() {
   return pids;
 }
 
-// TODO: Read and return the system memory utilization
+// Done: Read and return the system memory utilization
 float LinuxParser::MemoryUtilization() { 
   string line;
   string key;
   float memFree, memTotal;
   string value;
   std::ifstream filestream(kProcDirectory + kMeminfoFilename);
-  std::cerr << kProcDirectory + kMeminfoFilename;
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
-      //std::replace(line.begin(), line.end(), ' ', '_');
-      //std::replace(line.begin(), line.end(), '=', ' ');
-      //std::replace(line.begin(), line.end(), '"', ' ');
       std::istringstream linestream(line);
       while (linestream >> key >> value) {
-        std::cerr << "key: " << key << ", value " << value << "\n";
         if (key == "MemTotal:") {
           memTotal = std::stof(value);
         }
@@ -92,11 +87,27 @@ float LinuxParser::MemoryUtilization() {
       }
     }
   }
-  return memTotal - memFree;
+  // Return as a percentage 
+  // Based on HTOP method. Total used memory = MemTotal - MemFree
+  // Percent = Total used / Total. 
+  return (memTotal - memFree) / memTotal;
 }
 
 // TODO: Read and return the system uptime
-long LinuxParser::UpTime() { return 0; }
+long LinuxParser::UpTime() {   
+  string line;
+  string uptime_s, idletime;
+  long uptime;
+  std::ifstream filestream(kProcDirectory + kUptimeFilename);
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      std::istringstream linestream(line);
+      linestream >> uptime_s >> idletime;
+      uptime = std::stol(uptime_s);
+    }
+  }
+  return uptime;
+}
 
 // TODO: Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() { return 0; }
@@ -135,7 +146,7 @@ int LinuxParser::TotalProcesses() {
   return 0;
 }
 
-// TODO: Read and return the number of running processes
+// Done: Read and return the number of running processes
 int LinuxParser::RunningProcesses() {   
   string line;
   string key;
