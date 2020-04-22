@@ -3,6 +3,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "process.h"
 #include "processor.h"
@@ -14,6 +15,9 @@ using std::size_t;
 using std::string;
 using std::vector;
 
+System::System() {
+    cpu_ =  Processor();
+}
 // TODO: Return the system's CPU
 Processor& System::Cpu() { return cpu_; }
 
@@ -30,7 +34,18 @@ float System::MemoryUtilization() { return LinuxParser::MemoryUtilization(); }
 std::string System::OperatingSystem() { return LinuxParser::OperatingSystem(); }
 
 // Done: Return the number of processes actively running on the system
-int System::RunningProcesses() { return LinuxParser::RunningProcesses(); }
+int System::RunningProcesses() { 
+    // When counting Running Processes, update the vector of Processes
+    // for the process list display.
+    vector<int> procIds = LinuxParser::Pids();
+    processes_.clear();
+    Process *temp;
+    for (int pid : procIds) {
+        temp = new Process(pid);
+        processes_.push_back(*temp);
+    }
+    return LinuxParser::RunningProcesses(); 
+}
 
 // Done: Return the total number of processes on the system
 int System::TotalProcesses() { return LinuxParser::TotalProcesses(); }

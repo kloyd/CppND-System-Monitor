@@ -93,7 +93,7 @@ float LinuxParser::MemoryUtilization() {
   return (memTotal - memFree) / memTotal;
 }
 
-// TODO: Read and return the system uptime
+// Done: Read and return the system uptime
 long LinuxParser::UpTime() {   
   string line;
   string uptime_s, idletime;
@@ -110,14 +110,57 @@ long LinuxParser::UpTime() {
 }
 
 // TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() { return 0; }
+long LinuxParser::Jiffies() { 
+  string line;
+  string key;
+  long user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice; 
+  long totalJiff;
+  std::ifstream filestream(kProcDirectory + kStatFilename);
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      std::istringstream linestream(line);
+      // Read every line from /proc/stat, match on key = "cpu"
+      while (linestream >> key >> user >> nice >> system >> idle >> 
+             iowait >> irq >> softirq >> steal >> guest >> guest_nice) {
+        if (key == "cpu") {
+          totalJiff = user + nice + system + idle + iowait + irq + softirq + steal + guest + guest_nice;
+          break;
+        }
+      }
+    }
+  }
+
+  return totalJiff; 
+  
+}
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
 
 // TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { return 0; }
+long LinuxParser::ActiveJiffies() { 
+  string line;
+  string key;
+  long user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice; 
+  long activeJiffies;
+  std::ifstream filestream(kProcDirectory + kStatFilename);
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      std::istringstream linestream(line);
+      // Read every line from /proc/stat, match on key = "cpu"
+      while (linestream >> key >> user >> nice >> system >> idle >> 
+             iowait >> irq >> softirq >> steal >> guest >> guest_nice) {
+        if (key == "cpu") {
+          activeJiffies = user + nice + system + irq + softirq + steal;
+          break;
+        }
+      }
+    }
+  }
+
+  return activeJiffies;
+ }
 
 // TODO: Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() { return 0; }
