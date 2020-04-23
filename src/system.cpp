@@ -25,7 +25,10 @@ System::System() {
 Processor& System::Cpu() { return cpu_; }
 
 // Done: Return a container composed of the system's processes
-vector<Process>& System::Processes() { return processes_; }
+vector<Process>& System::Processes() { 
+    sort(processes_.begin(), processes_.end());
+    return processes_; 
+}
 
 // Done: Return the system's kernel identifier (string)
 std::string System::Kernel() { return LinuxParser::Kernel(); }

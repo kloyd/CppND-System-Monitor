@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "process.h"
 #include "linux_parser.h"
@@ -58,11 +59,57 @@ std::string Process::ProcessGetUser() {
 }
 
 std::string Process::ProcessGetCommand() {
-    return "bash";
+    string cmdline;
+    string line;
+    // Linux stores the command used to launch the function in the /proc/[pid]/cmdline file.
+    std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid_) + "/cmdline");
+    if (stream.is_open()) {
+        while (std::getline(stream, line)) {
+            std::istringstream linestream(line);
+            linestream >> cmdline;
+        }
+    }
+    return cmdline;
 }
 
 float Process::ProcessGetUtil() {
-    return 0.0;
+    /*
+    To calculate CPU usage for a specific process you'll need the following:
+
+    /proc/uptime
+        #1 uptime of the system (seconds)
+    /proc/[PID]/stat
+        #14 utime - CPU time spent in user code, measured in clock ticks
+        #15 stime - CPU time spent in kernel code, measured in clock ticks
+        #16 cutime - Waited-for children's CPU time spent in user code (in clock ticks)
+        #17 cstime - Waited-for children's CPU time spent in kernel code (in clock ticks)
+        #22 starttime - Time when the process started, measured in clock ticks
+    Hertz (number of clock ticks per second) of your system.
+        In most cases, getconf CLK_TCK can be used to return the number of clock ticks.
+        The sysconf(_SC_CLK_TCK) C function call may also be used to return the hertz value.
+
+    */
+    long uptime = LinuxParser::UpTime();
+    int hertz = sysconf(_SC_CLK_TCK);
+    long total_time;
+    long n1;
+    string c2, c3;
+    long n4, n5, n6, n7, n8, n9, n10, n11, n12, n13, utime, stime, cutime, cstime, n18, n19;
+    long n20, n21, starttime;
+    string line;
+    string userName;
+    std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid_) + "/stat");
+    while (std::getline(stream, line)) {
+      std::istringstream linestream(line);
+      linestream >> n1 >> c2 >> c3 >> n4 >> n5 >> n6 >> n7 >> n8 >> n9 >>
+        n10 >> n11 >> n12 >> n13 >> utime >> stime >> cutime >> cstime >>
+        n18 >> n19 >> n20 >> n21 >> starttime;;
+    }
+    //std::cout << hertz << " ";
+    total_time = utime + stime;
+    long seconds = uptime - (starttime / hertz);
+    float cpu_usage = (((float) total_time / (float) hertz) / (float) seconds);
+    return cpu_usage;
 }
 
 std::string Process::ProcessGetRam() {
