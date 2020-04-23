@@ -15,13 +15,16 @@ using std::size_t;
 using std::string;
 using std::vector;
 
+// Assign a CPU to the System Object
 System::System() {
-    cpu_ =  Processor();
+    Processor aCPU;
+    cpu_ =  aCPU;
 }
-// TODO: Return the system's CPU
+
+// Done: Return the system's CPU
 Processor& System::Cpu() { return cpu_; }
 
-// TODO: Return a container composed of the system's processes
+// Done: Return a container composed of the system's processes
 vector<Process>& System::Processes() { return processes_; }
 
 // Done: Return the system's kernel identifier (string)
@@ -37,13 +40,17 @@ std::string System::OperatingSystem() { return LinuxParser::OperatingSystem(); }
 int System::RunningProcesses() { 
     // When counting Running Processes, update the vector of Processes
     // for the process list display.
+    // get Pids from the LinuxParser and iterate.
     vector<int> procIds = LinuxParser::Pids();
     processes_.clear();
-    Process *temp;
+    // Memory management - will the memory used by temporary Process objects
+    // be released when the vector is cleared? 
+    Process *temporaryProcess;
     for (int pid : procIds) {
-        temp = new Process(pid);
-        processes_.push_back(*temp);
+        temporaryProcess = new Process(pid);
+        processes_.push_back(*temporaryProcess);
     }
+    
     return LinuxParser::RunningProcesses(); 
 }
 
