@@ -20,7 +20,7 @@ Process::Process(int pid) {
     command_ = LinuxParser::Command(pid);
     cpuUtilization_ = LinuxParser::CpuUtilizationPerProcess(pid);
     ram_ = LinuxParser::Ram(pid);
-    uptime_ = LinuxParser::UpTime();
+    uptime_ = LinuxParser::UpTime(pid);
 }
 
 // Done: Return this process's ID

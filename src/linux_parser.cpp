@@ -265,9 +265,26 @@ string LinuxParser::Command(int pid) {
 
 }
 
-// TODO: Read and return the memory used by a process
+// Done: Read and return the memory used by a process
 string LinuxParser::Ram(int pid) {
-  return "1M"; 
+  string key, ramUsed;
+  long vmsize;
+  string line;
+  std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid) + "/status");
+  if (stream.is_open()) {
+    while (std::getline(stream, line)) {
+        std::istringstream linestream(line);
+        linestream >> key >> ramUsed;
+        if (key == "VmSize:") {
+          vmsize = std::stol(ramUsed);
+          break;
+        }
+    }
+  }
+  // convert to MB
+  vmsize = vmsize / 1024;
+  ramUsed = std::to_string(vmsize);
+  return ramUsed; 
 }
 
 // Done: Read and return the user ID associated with a process
@@ -316,6 +333,21 @@ string LinuxParser::User(int pid) {
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::UpTime(int pid) { 
-  return 500; 
+    int hertz = sysconf(_SC_CLK_TCK);
+    long n1;
+    string c2, c3;
+    long n4, n5, n6, n7, n8, n9, n10, n11, n12, n13, utime, stime, cutime, cstime, n18, n19;
+    long n20, n21, starttime;
+    string line;
+    string userName;
+    std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid) + "/stat");
+    while (std::getline(stream, line)) {
+      std::istringstream linestream(line);
+      linestream >> n1 >> c2 >> c3 >> n4 >> n5 >> n6 >> n7 >> n8 >> n9 >>
+        n10 >> n11 >> n12 >> n13 >> utime >> stime >> cutime >> cstime >>
+        n18 >> n19 >> n20 >> n21 >> starttime;;
+    }
+
+    return starttime / hertz; 
   
 }
