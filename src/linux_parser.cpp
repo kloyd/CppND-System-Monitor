@@ -210,9 +210,21 @@ int LinuxParser::RunningProcesses() {
   return 0; 
 }
 
-// TODO: Read and return the command associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Command(int pid[[maybe_unused]]) { return string(); }
+// Done: Read and return the command associated with a process
+string LinuxParser::Command(int pid) { 
+    string cmdline;
+    string line;
+    // Linux stores the command used to launch the function in the /proc/[pid]/cmdline file.
+    std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid) + "/cmdline");
+    if (stream.is_open()) {
+        while (std::getline(stream, line)) {
+            std::istringstream linestream(line);
+            linestream >> cmdline;
+        }
+    }
+    return cmdline;
+
+}
 
 // TODO: Read and return the memory used by a process
 // REMOVE: [[maybe_unused]] once you define the function
@@ -222,9 +234,41 @@ string LinuxParser::Ram(int pid[[maybe_unused]]) { return string(); }
 // REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Uid(int pid[[maybe_unused]]) { return string(); }
 
-// TODO: Read and return the user associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::User(int pid[[maybe_unused]]) { return string(); }
+// Done: Read and return the user associated with a process
+string LinuxParser::User(int pid) { 
+    // use /proc/<pid>/status and /etc/passwd
+    // to obtain the user name.
+  string key, userId, dontCare, readUserName, readUserId;
+  string line;
+  string userName;
+  std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid) + "/status");
+  if (stream.is_open()) {
+
+    while (std::getline(stream, line)) {
+        std::istringstream linestream(line);
+        linestream >> key >> readUserId;
+        if (key == "Uid:") {
+            userId = readUserId;
+            break;
+        }
+    }
+    std::ifstream unamestream("/etc/passwd");
+    if (unamestream.is_open()) {
+        while(std::getline(unamestream, line)) {
+            std::replace(line.begin(), line.end(), ':', ' ');
+            std::istringstream linestreamuser(line);
+            linestreamuser >> readUserName >> dontCare>> readUserId;
+            if (readUserId == userId) {
+                // winner winner chicken dinner
+                userName = readUserName;
+                break;
+            }
+
+        }
+    }
+  }
+  return userName;
+ }
 
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function

@@ -16,60 +16,11 @@ using std::vector;
 // pid_ will be used to gather other information related to the Process.
 Process::Process(int pid) {
     pid_ = pid;
-    user_= ProcessGetUser();
-    command_ = ProcessGetCommand();
+    user_= LinuxParser::User(pid);
+    command_ = LinuxParser::Command(pid);
     cpuUtilization_ = ProcessGetUtil();
     ram_ = ProcessGetRam();
     uptime_ = ProcessGetUpTime();
-}
-
-std::string Process::ProcessGetUser() {
-    // use /proc/<pid>/status and /etc/passwd
-    // to obtain the user name.
-  string key, userId, dontCare, readUserName, readUserId;
-  string line;
-  string userName;
-  std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid_) + "/status");
-  if (stream.is_open()) {
-
-    while (std::getline(stream, line)) {
-        std::istringstream linestream(line);
-        linestream >> key >> readUserId;
-        if (key == "Uid:") {
-            userId = readUserId;
-            break;
-        }
-    }
-    std::ifstream unamestream("/etc/passwd");
-    if (unamestream.is_open()) {
-        while(std::getline(unamestream, line)) {
-            std::replace(line.begin(), line.end(), ':', ' ');
-            std::istringstream linestreamuser(line);
-            linestreamuser >> readUserName >> dontCare>> readUserId;
-            if (readUserId == userId) {
-                // winner winner chicken dinner
-                userName = readUserName;
-                break;
-            }
-
-        }
-    }
-  }
-  return userName;
-}
-
-std::string Process::ProcessGetCommand() {
-    string cmdline;
-    string line;
-    // Linux stores the command used to launch the function in the /proc/[pid]/cmdline file.
-    std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid_) + "/cmdline");
-    if (stream.is_open()) {
-        while (std::getline(stream, line)) {
-            std::istringstream linestream(line);
-            linestream >> cmdline;
-        }
-    }
-    return cmdline;
 }
 
 float Process::ProcessGetUtil() {
