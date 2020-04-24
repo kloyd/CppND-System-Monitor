@@ -26,10 +26,6 @@ class Process {
    std::string ram_;
    int uptime_;
 
-   float ProcessGetUtil();
-   std::string ProcessGetRam();
-   int ProcessGetUpTime();
-
 };
 
 #endif
