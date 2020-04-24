@@ -43,15 +43,22 @@ std::string System::OperatingSystem() { return LinuxParser::OperatingSystem(); }
 int System::RunningProcesses() { 
     // When counting Running Processes, update the vector of Processes
     // for the process list display.
+    Process *temporaryProcess;
+    /* First, delete any Process objects in the vector.
+    for (Process p : processes_) {
+        delete &p;
+    }
+    */
     // get Pids from the LinuxParser and iterate.
     vector<int> procIds = LinuxParser::Pids();
     processes_.clear();
     // Memory management - will the memory used by temporary Process objects
     // be released when the vector is cleared? 
-    Process *temporaryProcess;
+
     for (int pid : procIds) {
         temporaryProcess = new Process(pid);
         processes_.push_back(*temporaryProcess);
+        delete temporaryProcess;
     }
     
     return LinuxParser::RunningProcesses(); 
