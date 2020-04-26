@@ -154,7 +154,6 @@ float LinuxParser::CpuUtilizationPerProcess(int pid) {
     long uptime = LinuxParser::UpTime();
     int hertz = sysconf(_SC_CLK_TCK);
     long total_time;
-    long n1;
     string c2, c3;
     long n4, n5, n6, n7, n8, n9, n10, n11, n12, n13, utime, stime, cutime, cstime, n18, n19;
     long n20, n21, starttime;
@@ -162,8 +161,10 @@ float LinuxParser::CpuUtilizationPerProcess(int pid) {
     string userName;
     std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid) + "/stat");
     while (std::getline(stream, line)) {
+
       std::istringstream linestream(line);
-      linestream >> n1 >> c2 >> c3 >> n4 >> n5 >> n6 >> n7 >> n8 >> n9 >>
+      linestream.ignore(256, ')');
+      linestream >> c3 >> n4 >> n5 >> n6 >> n7 >> n8 >> n9 >>
         n10 >> n11 >> n12 >> n13 >> utime >> stime >> cutime >> cstime >>
         n18 >> n19 >> n20 >> n21 >> starttime;;
     }
@@ -268,7 +269,7 @@ string LinuxParser::Command(int pid) {
 // Done: Read and return the memory used by a process
 string LinuxParser::Ram(int pid) {
   string key, ramUsed;
-  long vmsize;
+  long vmsize = 0;
   string line;
   std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid) + "/status");
   if (stream.is_open()) {
@@ -282,9 +283,13 @@ string LinuxParser::Ram(int pid) {
     }
   }
   // convert to MB
-  vmsize = vmsize / 1024;
-  ramUsed = std::to_string(vmsize);
-  return ramUsed; 
+  if (vmsize == 0) {
+    return "0";
+  } else {
+    vmsize = vmsize / 1024;
+    ramUsed = std::to_string(vmsize);
+    return ramUsed; 
+  }
 }
 
 // Done: Read and return the user ID associated with a process
@@ -331,21 +336,25 @@ string LinuxParser::User(int pid) {
  }
 
 // TODO: Read and return the uptime of a process
-// REMOVE: [[maybe_unused]] once you define the function
 long LinuxParser::UpTime(int pid) { 
     int hertz = sysconf(_SC_CLK_TCK);
-    long n1;
-    string c2, c3;
-    long n4, n5, n6, n7, n8, n9, n10, n11, n12, n13, utime, stime, cutime, cstime, n18, n19;
-    long n20, n21, starttime;
+    // long n1;
+    string c2, c3, c4, c5, c6, skip;
+    //long n4, n5, n6, n7, n8, n9, n10, n11, n12, n13;
+    string utime, stime, cutime, cstime, n18, n19;
+    long starttime;
+    starttime = 0;
     string line;
     string userName;
     std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid) + "/stat");
     while (std::getline(stream, line)) {
+
       std::istringstream linestream(line);
-      linestream >> n1 >> c2 >> c3 >> n4 >> n5 >> n6 >> n7 >> n8 >> n9 >>
-        n10 >> n11 >> n12 >> n13 >> utime >> stime >> cutime >> cstime >>
-        n18 >> n19 >> n20 >> n21 >> starttime;;
+      linestream.ignore(256, ')');
+      // should skip n1, c2 (c2 = "(some thing)")
+      linestream >> c3 >> c4 >> c5 >> c6 >> skip >> skip >> skip >>
+        skip >> skip >> skip >> skip >> utime >> stime >> cutime >> cstime >>
+        skip >> skip >> skip >> skip >> starttime;;
     }
 
     return starttime / hertz; 

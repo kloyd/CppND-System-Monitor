@@ -47,6 +47,9 @@ long int Process::UpTime() { return LinuxParser::UpTime(pid_); }
 bool Process::operator<(Process const& other) const { 
     Process a = other;
     Process b = *this;
-    return a.CpuUtilization() < b.CpuUtilization(); 
+    long aMemory = std::stol(a.Ram());
+    long bMemory = std::stol(b.Ram());
+    //return aMemory < bMemory; 
+    return a.CpuUtilization() < b.CpuUtilization();
     
 }
