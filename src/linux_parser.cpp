@@ -154,7 +154,7 @@ float LinuxParser::CpuUtilizationPerProcess(int pid) {
     long uptime = LinuxParser::UpTime();
     int hertz = sysconf(_SC_CLK_TCK);
     long total_time;
-    string c2, c3;
+    string skip;
     long n4, n5, n6, n7, n8, n9, n10, n11, n12, n13, utime, stime, cutime, cstime, n18, n19;
     long n20, n21, starttime;
     string line;
@@ -164,8 +164,11 @@ float LinuxParser::CpuUtilizationPerProcess(int pid) {
 
       std::istringstream linestream(line);
       linestream.ignore(256, ')');
-      linestream >> c3 >> n4 >> n5 >> n6 >> n7 >> n8 >> n9 >>
-        n10 >> n11 >> n12 >> n13 >> utime >> stime >> cutime >> cstime >>
+      // Starts at 'S' which is column 3.
+      //             3       4      5        6       7       8       9
+      linestream >> skip >> skip >> skip >> skip >> skip >> skip >> skip >>
+      //  10     11      12      13      14
+        skip >> skip >> skip >> skip >> utime >> stime >> cutime >> cstime >>
         n18 >> n19 >> n20 >> n21 >> starttime;;
     }
     total_time = utime + stime;
