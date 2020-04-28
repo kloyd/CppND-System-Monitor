@@ -47,9 +47,11 @@ long int Process::UpTime() { return LinuxParser::UpTime(pid_); }
 bool Process::operator<(Process const& other) const { 
     Process a = other;
     Process b = *this;
+    /* in case we want to sort by memory use.
     long aMemory = std::stol(a.Ram());
     long bMemory = std::stol(b.Ram());
-    //return aMemory < bMemory; 
-    return a.CpuUtilization() < b.CpuUtilization();
+    return aMemory < bMemory; 
+    */
+   return a.CpuUtilization() < b.CpuUtilization();
     
 }

@@ -151,11 +151,15 @@ float LinuxParser::CpuUtilizationPerProcess(int pid) {
         The sysconf(_SC_CLK_TCK) C function call may also be used to return the hertz value.
 
     */
+
+    /* I think cpu utilization should be based on ActiveJiffies per PID
+       and it should be computed off of active = utime + stime */
+    
     long uptime = LinuxParser::UpTime();
     int hertz = sysconf(_SC_CLK_TCK);
     long total_time;
     string skip;
-    long n4, n5, n6, n7, n8, n9, n10, n11, n12, n13, utime, stime, cutime, cstime, n18, n19;
+    long utime, stime, cutime, cstime, n18, n19;
     long n20, n21, starttime;
     string line;
     string userName;
@@ -340,6 +344,9 @@ string LinuxParser::User(int pid) {
 
 // TODO: Read and return the uptime of a process
 long LinuxParser::UpTime(int pid) { 
+  /*
+  Currently getting this from starttime... maybe this should be utime + stime ??
+  */
     int hertz = sysconf(_SC_CLK_TCK);
     // long n1;
     string c2, c3, c4, c5, c6, skip;
