@@ -12,7 +12,7 @@ using std::string;
 using std::vector;
 
 // Instantiate a Process object with PID.
-// pid_ will be used to gather other information related to the Process.
+// pid will be used to gather other information related to the Process.
 Process::Process(int pid) {
     pid_ = pid;
     user_= LinuxParser::User(pid);
