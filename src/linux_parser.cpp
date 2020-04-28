@@ -262,9 +262,13 @@ long LinuxParser::IdleJiffies() {
     return idleJiffies;
  }
 
-// Not Done: Read and return CPU utilization
-// Not required as project does not report multiple cpu utilization.
-vector<string> LinuxParser::CpuUtilization() { return {}; }
+// Return CPU Utilization as active jiffies / total jiffies.
+float LinuxParser::CpuUtilization() {
+    float active, total;
+    active = LinuxParser::ActiveJiffies();
+    total = LinuxParser::Jiffies();
+    return active / total;
+ }
 
 // DONE: Read and return the total number of processes
 int LinuxParser::TotalProcesses() {  
