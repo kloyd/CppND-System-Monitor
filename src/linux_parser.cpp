@@ -181,11 +181,35 @@ float LinuxParser::CpuUtilizationPerProcess(int pid) {
     return cpu_usage;
 }
 
-// TODO: Read and return the number of active jiffies for a PID
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
+/*
+    Read and return the number of active jiffies for a PID
+      use /proc/<pid>/stat
+      select utime and stime columns.
+*/
+long LinuxParser::ActiveJiffies(int pid) {
+    string skip;
+    string utime_s, stime_s, cutime_s, cstime_s;
+    long utime{0}, stime{0};
+    string line;
+    string userName;
+    std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid) + "/stat");
+    while (std::getline(stream, line)) {
 
-// TODO: Read and return the number of active jiffies for the system
+      std::istringstream linestream(line);
+      // skip over the first 2 columns - the executable may have a space
+      // which will throw out the istringstream parser.
+      linestream.ignore(256, ')');
+      // skip over columns 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, and 13
+      // http://man7.org/linux/man-pages/man5/proc.5.html
+      linestream >> skip >> skip >> skip >> skip >> skip >> skip >> skip >>
+        skip >> skip >> skip >> skip >> utime >> stime >> cutime_s >> cstime_s;
+    }
+    //utime = std::stol(utime_s);
+    //stime = std::stol(stime_s);
+    return utime + stime;
+ }
+
+// Read and return the number of active jiffies for the system
 long LinuxParser::ActiveJiffies() { 
   string line;
   string key;
@@ -259,7 +283,9 @@ int LinuxParser::RunningProcesses() {
 
 // Done: Read and return the command associated with a process
 string LinuxParser::Command(int pid) { 
-    string cmdline;
+    // default to "None" - if we don't find a cmdline entry, we won't
+    // show the process. (May be special root only process)
+    string cmdline{"None"};
     string line;
     // Linux stores the command used to launch the function in the /proc/[pid]/cmdline file.
     std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid) + "/cmdline");
@@ -275,16 +301,16 @@ string LinuxParser::Command(int pid) {
 
 // Done: Read and return the memory used by a process
 string LinuxParser::Ram(int pid) {
-  string key, ramUsed;
-  long vmsize = 0;
+  string key, vmsize_s;
+  long vmsize{0};
   string line;
   std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid) + "/status");
   if (stream.is_open()) {
     while (std::getline(stream, line)) {
         std::istringstream linestream(line);
-        linestream >> key >> ramUsed;
+        linestream >> key >> vmsize;
         if (key == "VmSize:") {
-          vmsize = std::stol(ramUsed);
+          //vmsize = std::stol(ramUsed);
           break;
         }
     }
@@ -294,8 +320,8 @@ string LinuxParser::Ram(int pid) {
     return "0";
   } else {
     vmsize = vmsize / 1024;
-    ramUsed = std::to_string(vmsize);
-    return ramUsed; 
+    vmsize_s = std::to_string(vmsize);
+    return vmsize_s; 
   }
 }
 
@@ -348,6 +374,8 @@ long LinuxParser::UpTime(int pid) {
   Currently getting this from starttime... maybe this should be utime + stime ??
   */
     int hertz = sysconf(_SC_CLK_TCK);
+    long jiffies = ActiveJiffies(pid);
+    return jiffies / hertz;
     // long n1;
     string c2, c3, c4, c5, c6, skip;
     //long n4, n5, n6, n7, n8, n9, n10, n11, n12, n13;

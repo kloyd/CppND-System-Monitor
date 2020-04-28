@@ -57,7 +57,12 @@ int System::RunningProcesses() {
 
     for (int pid : procIds) {
         temporaryProcess = new Process(pid);
-        processes_.push_back(*temporaryProcess);
+        // Rare case where there is an entry in /proc for a process,
+        // but no command can be found in /proc/<pid>/cmdline.
+        // Don't show these in our monitor.
+        if (temporaryProcess->Command() != "None") {
+            processes_.push_back(*temporaryProcess);
+        }
         delete temporaryProcess;
     }
     

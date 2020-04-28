@@ -69,8 +69,10 @@ void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
   mvwprintw(window, row, time_column, "TIME+");
   mvwprintw(window, row, command_column, "COMMAND");
   wattroff(window, COLOR_PAIR(2));
+  // Blank line to clear out artifacts from process info moving up and down the list.
+  std::string clear_line = std::string(window->_maxy, ' ');
   for (int i = 0; i < n; ++i) {
-    mvwprintw(window, ++row, 1, "                                                                      ");
+    mvwprintw(window, ++row, 1, clear_line.c_str());
     mvwprintw(window, row, pid_column, to_string(processes[i].Pid()).c_str());
     mvwprintw(window, row, user_column, processes[i].User().c_str());
     float cpu = processes[i].CpuUtilization() * 100;
