@@ -151,31 +151,33 @@ float LinuxParser::CpuUtilizationPerProcess(int pid) {
         The sysconf(_SC_CLK_TCK) C function call may also be used to return the hertz value.
 
     */
-
-    /* I think cpu utilization should be based on ActiveJiffies per PID
-       and it should be computed off of active = utime + stime */
     
     long uptime = LinuxParser::UpTime();
     int hertz = sysconf(_SC_CLK_TCK);
     long total_time;
     string skip;
-    long utime, stime, cutime, cstime, n18, n19;
-    long n20, n21, starttime;
+    long utime{0}, stime{0}, cutime{0}, cstime{0}, starttime{0};
     string line;
     string userName;
     std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid) + "/stat");
     while (std::getline(stream, line)) {
 
       std::istringstream linestream(line);
+      // Skip past executable name - it may contain a space, but always ends with ')'
       linestream.ignore(256, ')');
-      // Starts at 'S' which is column 3.
-      //             3       4      5        6       7       8       9
-      linestream >> skip >> skip >> skip >> skip >> skip >> skip >> skip >>
-      //  10     11      12      13      14
-        skip >> skip >> skip >> skip >> utime >> stime >> cutime >> cstime >>
-        n18 >> n19 >> n20 >> n21 >> starttime;;
+      // skip next 11 columns.
+      for (int i = 0; i < 11; i++) {
+        linestream >> skip;
+      }
+      // starting at column 14.
+      linestream >> utime >> stime >> cutime >> cstime;
+      // skip to column 22.
+      for (int i = 0; i < 4; i++) {
+        linestream >> skip;
+      }
+      linestream >> starttime;;
     }
-    total_time = utime + stime;
+    total_time = utime + stime + cutime + cstime;
     long seconds = uptime - (starttime / hertz);
     // don't do division by zero... assume 100% cpu.
     if (seconds == 0) {
@@ -193,8 +195,7 @@ float LinuxParser::CpuUtilizationPerProcess(int pid) {
 */
 long LinuxParser::ActiveJiffies(int pid) {
     string skip;
-    string utime_s, stime_s, cutime_s, cstime_s;
-    long utime{0}, stime{0};
+    long utime{0}, stime{0}, cutime{0}, cstime{0};
     string line;
     string userName;
     std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid) + "/stat");
@@ -206,12 +207,12 @@ long LinuxParser::ActiveJiffies(int pid) {
       linestream.ignore(256, ')');
       // skip over columns 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, and 13
       // http://man7.org/linux/man-pages/man5/proc.5.html
-      linestream >> skip >> skip >> skip >> skip >> skip >> skip >> skip >>
-        skip >> skip >> skip >> skip >> utime >> stime >> cutime_s >> cstime_s;
+      for (int i = 0; i < 11; i++) {
+        linestream >> skip;
+      }
+      linestream >> utime >> stime >> cutime >> cstime;
     }
-    //utime = std::stol(utime_s);
-    //stime = std::stol(stime_s);
-    return utime + stime;
+    return utime + stime + cutime + cstime;
  }
 
 // Read and return the number of active jiffies for the system
