@@ -26,7 +26,9 @@ Processor& System::Cpu() { return cpu_; }
 
 // Done: Return a container composed of the system's processes
 vector<Process>& System::Processes() { 
-    sort(processes_.begin(), processes_.end());
+    // Showing processes with Largest CPU utilization at the top of the list.
+    // so sort in reverse order.
+    reverse(processes_.begin(), processes_.end());
     return processes_; 
 }
 
