@@ -11,9 +11,9 @@
 using std::string;
 using std::vector;
 
-// Instantiate a Process object with PID.
+// Set the pid for the process
 // pid will be used to gather other information related to the Process.
-Process::Process(int pid) {
+void Process::setPid(int pid) {
     pid_ = pid;
     user_= LinuxParser::User(pid);
     command_ = LinuxParser::Command(pid);

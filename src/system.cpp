@@ -26,6 +26,22 @@ Processor& System::Cpu() { return cpu_; }
 
 // Done: Return a container composed of the system's processes
 vector<Process>& System::Processes() { 
+    // place holder variable for each process in the int vector of pids.
+    Process temporaryProcess;
+    // clear out the old list.
+    processes_.clear();
+    // get Pids from the LinuxParser and iterate.
+    vector<int> procIds = LinuxParser::Pids();
+    for (int pid : procIds) {
+        temporaryProcess.setPid(pid);
+        // Rare case where there is an entry in /proc for a process,
+        // but no command can be found in /proc/<pid>/cmdline.
+        // Don't show these in our monitor.
+        if (temporaryProcess.Command() != "None") {
+            processes_.push_back(temporaryProcess);
+        }
+    }
+    
     // Showing processes with Largest CPU utilization at the top of the list.
     // so sort in reverse order.
     reverse(processes_.begin(), processes_.end());
@@ -43,31 +59,7 @@ std::string System::OperatingSystem() { return LinuxParser::OperatingSystem(); }
 
 // Done: Return the number of processes actively running on the system
 int System::RunningProcesses() { 
-    // When counting Running Processes, update the vector of Processes
-    // for the process list display.
-    Process *temporaryProcess;
-    /* First, delete any Process objects in the vector.
-    for (Process p : processes_) {
-        delete &p;
-    }
-    */
-    // get Pids from the LinuxParser and iterate.
-    vector<int> procIds = LinuxParser::Pids();
-    processes_.clear();
-    // Memory management - will the memory used by temporary Process objects
-    // be released when the vector is cleared? 
 
-    for (int pid : procIds) {
-        temporaryProcess = new Process(pid);
-        // Rare case where there is an entry in /proc for a process,
-        // but no command can be found in /proc/<pid>/cmdline.
-        // Don't show these in our monitor.
-        if (temporaryProcess->Command() != "None") {
-            processes_.push_back(*temporaryProcess);
-        }
-        delete temporaryProcess;
-    }
-    
     return LinuxParser::RunningProcesses(); 
 }
 
