@@ -134,7 +134,7 @@ long LinuxParser::Jiffies() {
   
 }
 
-float LinuxParser::CpuUtilizationPerProcess(int pid) {
+float LinuxParser::CpuUtilization(int pid) {
    /*
     To calculate CPU usage for a specific process you'll need the following:
 
