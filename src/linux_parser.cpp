@@ -261,7 +261,8 @@ long LinuxParser::IdleJiffies() {
     return idleJiffies;
  }
 
-// TODO: Read and return CPU utilization
+// Not Done: Read and return CPU utilization
+// Not required as project does not report multiple cpu utilization.
 vector<string> LinuxParser::CpuUtilization() { return {}; }
 
 // DONE: Read and return the total number of processes
@@ -393,33 +394,10 @@ string LinuxParser::User(int pid) {
   return userName;
  }
 
-// TODO: Read and return the uptime of a process
-long LinuxParser::UpTime(int pid) { 
-  /*
-  Currently getting this from starttime... maybe this should be utime + stime ??
-  */
-    int hertz = sysconf(_SC_CLK_TCK);
-    long jiffies = ActiveJiffies(pid);
-    return jiffies / hertz;
-    // long n1;
-    string c2, c3, c4, c5, c6, skip;
-    //long n4, n5, n6, n7, n8, n9, n10, n11, n12, n13;
-    string utime, stime, cutime, cstime, n18, n19;
-    long starttime;
-    starttime = 0;
-    string line;
-    string userName;
-    std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid) + "/stat");
-    while (std::getline(stream, line)) {
-
-      std::istringstream linestream(line);
-      linestream.ignore(256, ')');
-      // should skip n1, c2 (c2 = "(some thing)")
-      linestream >> c3 >> c4 >> c5 >> c6 >> skip >> skip >> skip >>
-        skip >> skip >> skip >> skip >> utime >> stime >> cutime >> cstime >>
-        skip >> skip >> skip >> skip >> starttime;;
-    }
-
-    return starttime / hertz; 
-  
+// Done: Read and return the uptime of a process
+long LinuxParser::UpTime(int pid) {
+  // Use ActiveJiffies for process, divide by clock ticks.
+  int hertz = sysconf(_SC_CLK_TCK);
+  long jiffies = ActiveJiffies(pid);
+  return jiffies / hertz;
 }
