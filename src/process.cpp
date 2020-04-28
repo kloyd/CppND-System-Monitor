@@ -57,13 +57,12 @@ long int Process::UpTime() {
  *  Future: allow choosing CPU / Memory for sort.
 */
 bool Process::operator<(Process const& other) const { 
-    Process a = *this;
     Process b = other;
     /* in case we want to sort by memory use.
     long aMemory = std::stol(a.Ram());
     long bMemory = std::stol(b.Ram());
     return aMemory < bMemory; 
     */
-   return a.CpuUtilization() < b.CpuUtilization();
+   return cpuUtilization_ < other.cpuUtilization_;
     
 }
