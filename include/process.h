@@ -3,8 +3,10 @@
 
 #include <string>
 /*
-Basic class for Process representation
-It contains relevant attributes as shown below
+ * Process class
+ * Represents a single system process.
+ * Attributes: pid, username, command, cpu%, memory, uptime.
+ * overload operator< to determine how process list is sorted.
 */
 class Process {
  public:
@@ -19,17 +21,16 @@ class Process {
 
   /*
    * Design:
-   * Compute process information when Process object is instantiated.
+   * determine process information when Process object is created.
    * Save results from LinuxParser and return values from private members.
-  */
+   */
  private:
-   int pid_;
-   std::string user_;
-   std::string command_;
-   float cpuUtilization_;
-   std::string ram_;
-   int uptime_;
-
+  int pid_;
+  std::string user_;
+  std::string command_;
+  float cpuUtilization_;
+  std::string ram_;
+  int uptime_;
 };
 
 #endif
