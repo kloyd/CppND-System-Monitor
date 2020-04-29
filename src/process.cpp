@@ -28,7 +28,7 @@ int Process::Pid() {
 }
 
 // Done: Return this process's CPU utilization
-float Process::CpuUtilization() { 
+float Process::CpuUtilization() const { 
     return cpuUtilization_; 
 }
 
@@ -57,12 +57,11 @@ long int Process::UpTime() {
  *  Future: allow choosing CPU / Memory for sort.
 */
 bool Process::operator<(Process const& other) const { 
-    Process b = other;
     /* in case we want to sort by memory use.
     long aMemory = std::stol(a.Ram());
     long bMemory = std::stol(b.Ram());
     return aMemory < bMemory; 
     */
-   return cpuUtilization_ < other.cpuUtilization_;
+   return this->CpuUtilization() < other.CpuUtilization();
     
 }

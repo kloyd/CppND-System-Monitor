@@ -44,7 +44,8 @@ vector<Process>& System::Processes() {
     
     // Showing processes with Largest CPU utilization at the top of the list.
     // so sort in reverse order.
-    reverse(processes_.begin(), processes_.end());
+    //std::reverse(processes_.begin(), processes_.end());
+    sort(processes_.rbegin(), processes_.rend());
     return processes_; 
 }
 
