@@ -326,10 +326,13 @@ string LinuxParser::Command(int pid) {
   std::ifstream stream(LinuxParser::kProcDirectory + std::to_string(pid) +
                        "/cmdline");
   if (stream.is_open()) {
-    while (std::getline(stream, line)) {
-      std::istringstream linestream(line);
-      linestream >> cmdline;
-    }
+    std::getline(stream, line);
+    std::istringstream linestream(line);
+    linestream >> cmdline;
+    //while (std::getline(stream, line)) {
+    //  std::istringstream linestream(line);
+    //  linestream >> cmdline;
+    //}
   }
   return cmdline;
 }
