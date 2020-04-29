@@ -46,9 +46,10 @@ long int Process::UpTime() const { return uptime_; }
  */
 bool Process::operator<(Process const& other) const {
   /* in case we want to sort by memory use.
-  long aMemory = std::stol(a.Ram());
-  long bMemory = std::stol(b.Ram());
+  long aMemory = std::stol(this->Ram());
+  long bMemory = std::stol(other.Ram());
   return aMemory < bMemory;
   */
+  // sort by CPU Utilization.
   return this->CpuUtilization() < other.CpuUtilization();
 }
