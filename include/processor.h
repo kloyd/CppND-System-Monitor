@@ -4,7 +4,6 @@
 class Processor {
  public:
   float Utilization();  // Done: See src/processor.cpp
-
 };
 
 #endif

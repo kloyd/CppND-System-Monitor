@@ -7,7 +7,7 @@
  * Represents a single system process.
  * Attributes: pid, username, command, cpu%, memory, uptime.
  * overload operator< to determine how process list is sorted.
-*/
+ */
 class Process {
  public:
   void setPid(int pid);
