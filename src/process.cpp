@@ -23,22 +23,22 @@ void Process::setPid(int pid) {
 }
 
 // Done: Return this process's ID
-int Process::Pid() { return pid_; }
+int Process::Pid() const { return pid_; }
 
 // Done: Return this process's CPU utilization
 float Process::CpuUtilization() const { return cpuUtilization_; }
 
 // Done: Return the command that generated this process
-string Process::Command() { return command_; }
+string Process::Command() const { return command_; }
 
 // Done: Return this process's memory utilization
-string Process::Ram() { return ram_; }
+string Process::Ram() const { return ram_; }
 
 // Done: Return the user (name) that generated this process
-string Process::User() { return user_; }
+string Process::User() const { return user_; }
 
 // Done: Return the age of this process (in seconds)
-long int Process::UpTime() { return uptime_; }
+long int Process::UpTime() const { return uptime_; }
 
 /* Overload the "less than" comparison operator for Process objects
  *  Use CPU Utilization.
